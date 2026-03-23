@@ -1,0 +1,36 @@
+# Coordinate-Based Seq2Seq NMT Backend Plan
+
+This document outlines the architectural implementation for the HoloLens 2 Word-Level Sign Language Recognition edge-server backend.
+
+## User Review Required
+> [!IMPORTANT]
+> - Are we targeting a specific frame rate for MediaPipe? MediaPipe typically locks to webcam speed (30fps or 60fps). 
+> - For the initial step, we will mock the AI Model output with simple dictionary lookup or random strings to ensure the pipeline (MediaPipe -> Buffer -> Tensor -> WebSocket) works flawlessly, before finding or training a large Transformer model. Please confirm if this approach is acceptable.
+
+## Proposed Changes
+
+### Configuration
+#### [NEW] `requirements.txt`(file:///c:/GitHub/Sign-Language-GISLR/requirements.txt)
+We will add `opencv-python`, `mediapipe`, `torch`, `websockets`, and `numpy`.
+
+### 1. Data Extractor
+#### [NEW] `extractor.py`(file:///c:/GitHub/Sign-Language-GISLR/extractor.py)
+This file will contain the MediaPipe Holistic integration. It will spin up a webcam stream and yield `[543, 3]` numpy arrays for every frame. 
+
+### 2. The Sequence Buffer
+#### [NEW] `buffer.py`(file:///c:/GitHub/Sign-Language-GISLR/buffer.py)
+This module maintains a sliding or chunked window of the last `N` frames. It converts the list of landmarks into our final PyTorch Tensor of shape `[1, N, 543, 3]`.
+
+### 3. Model Inference Mock
+#### [NEW] `model_engine.py`(file:///c:/GitHub/Sign-Language-GISLR/model_engine.py)
+Initially, a placeholder class that takes the `[1, N, 543, 3]` tensor and outputs a translated English string (e.g., "HELLO"). It will be designed to easily drop in a PyTorch `.pt` model later.
+
+### 4. WebSocket Server
+#### [NEW] `server.py`(file:///c:/GitHub/Sign-Language-GISLR/server.py)
+A lightweight asyncio WebSocket server. The script continually runs the extractor, pushes to the buffer, performs inference, and broadcasts the resulting string to any connected client (the HoloLens).
+
+## Verification Plan
+### Automated Tests
+- We will write a small dummy client (`test_client.py`) that connects to `server.py` and prints the received strings to terminal.
+### Manual Verification
+- We will run `server.py` locally and ensure it successfully opens the webcam, draws MediaPipe landmarks on the debug view, and logs "Translated text streamed" without crashing for at least 60 seconds.
