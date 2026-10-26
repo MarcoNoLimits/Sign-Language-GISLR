@@ -2,8 +2,6 @@
 
 **Word-level sign language recognition from body landmarks, streamed to a HoloLens over WebSocket.**
 
-> **Part of [HoloAssist](https://github.com/MarcoNoLimits/Bootstrap)**, a HoloLens 2 app that gives people with non-functional hearing live subtitles, English ↔ Italian translation and ASL fingerspelling recognition. HoloAssist reads *fingerspelled letters*; this repo explores the next step, recognising *whole signs*. Graduation project (FENS 402), Kadir Has University, 2026.
-
 **Status:** research prototype. The pipeline runs end to end on a laptop webcam; trained weights aren't included in the repo.
 
 ## How it works
